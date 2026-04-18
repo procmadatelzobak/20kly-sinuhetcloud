@@ -25,7 +25,7 @@ from .difficulty import DIFFICULTY
 
 FRAME_RATE = 35
 RT_FRAME_LENGTH = 1.0 / FRAME_RATE
-INV_FRAME_RATE = 1000.0 / FRAME_RATE
+RT_FRAME_LENGTH_MS = int(1000 * RT_FRAME_LENGTH)
 
 class Game_Data:
     def __init__(self, demo: "game_random.Game_Random", challenge: MenuCommand) -> None:
@@ -508,6 +508,8 @@ class Game:
 
         is_desktop = config.Is_Desktop()
         self.cur_time = g.game_time.time()
+        wasm_time_taken = 0
+        show_frame_rate = True
 
         # Main loop
         while ( loop_running ):
@@ -515,22 +517,52 @@ class Game:
             self.menu_open = self.ui.Is_Menu_Open() or (not g.game_running)
             self.paused = self.menu_open or (not has_input_focus)
 
-            if self.ui.Is_Fast_Forward():
-                self.clock.tick(FRAME_RATE * 10)
-            elif (self.playback_mode in (PlayMode.PLAYBACK, PlayMode.PLAYTHRU)):
+            if is_desktop:
+                # Frame rate delay
+                if self.ui.Is_Fast_Forward():
+                    self.clock.tick(FRAME_RATE * 10)
+                elif (self.playback_mode in (PlayMode.PLAYBACK, PlayMode.PLAYTHRU)):
+                    self.clock.tick(0)
+                else:
+                    self.clock.tick(FRAME_RATE)
+
+                # Frame advance
+                self.Game_Tick()
+
+                # First event
+                await asyncio.sleep(0)  # <- yields for other async tasks
+                if self.paused:
+                    e = self.event.wait()
+                else:
+                    e = self.event.poll()
+            else:
+                # Frame rate delay
                 self.clock.tick(0)
-            else:
-                self.clock.tick(FRAME_RATE)
 
-            self.Game_Tick()
+                if show_frame_rate:
+                    pygame.draw.rect(self.screen, (0,0,0), pygame.Rect(0, 0, self.screen.get_rect().width, 50))
 
-            # Events
-            if self.paused and is_desktop:
-                e = self.event.wait()
-            else:
-                await asyncio.sleep(0)
+                wasm_time_taken += self.clock.get_time() * (10 if self.ui.Is_Fast_Forward() else 1)
+                if show_frame_rate:
+                    pygame.draw.rect(self.screen, (255,0,0), pygame.Rect(0, 0, wasm_time_taken, 10))
+
+                (wasm_frames, wasm_time_taken) = divmod(wasm_time_taken, RT_FRAME_LENGTH_MS)
+                if show_frame_rate:
+                    pygame.draw.rect(self.screen, (255,0,255), pygame.Rect(0, 0, wasm_time_taken, 10))
+                    pygame.draw.rect(self.screen, (255,255,255), pygame.Rect(0, 10, wasm_frames * RT_FRAME_LENGTH_MS, 10))
+
+                wasm_frames = min(20, wasm_frames)
+                if show_frame_rate:
+                    pygame.draw.rect(self.screen, (255,255,255), pygame.Rect(0, 20, wasm_frames * RT_FRAME_LENGTH_MS, 10))
+
+                for i in range(wasm_frames):
+                    self.Game_Tick()
+
+                # First event
+                await asyncio.sleep(0)  # <- waits for the next frame
                 e = self.event.poll()
 
+            # Events
             while ( e.type != pygame.NOEVENT ):
                 if e.type == pygame.QUIT:
                     loop_running = False
