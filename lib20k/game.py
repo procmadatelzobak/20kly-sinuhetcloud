@@ -259,7 +259,7 @@ class Game:
                                         self.g.game_time.Get_Day(), self.screen.get_rect().height)))
             New_Mail("SCREENSHOT CHEAT")
 
-    def Game_Tick(self) -> None:
+    def Game_Tick(self, draw: bool) -> None:
         g = self.g
         if not self.paused:
             self.flash = not self.flash
@@ -272,23 +272,24 @@ class Game:
         if not self.paused:
             self.demo.timestamp(g)
 
-        self.ui.Draw_Game(self.game_screen_surf, g.season_fx, self.paused)
+        if draw:
+            self.ui.Draw_Game(self.game_screen_surf, g.season_fx, self.paused)
 
-        until_next: List[StatTuple]
-        if ( g.challenge == MenuCommand.TUTORIAL ):
-            until_next = []
-        elif ( g.challenge == MenuCommand.PEACEFUL ):
-            until_next = [ ((128,128,128), 12, "Peaceful mode") ]
-        else:
-            until_next = [ ((128,128,128), 12, "(%d days until next season)" %
-                        (( g.season_ends - self.cur_time ) + 1 )) ]
+            until_next: List[StatTuple]
+            if ( g.challenge == MenuCommand.TUTORIAL ):
+                until_next = []
+            elif ( g.challenge == MenuCommand.PEACEFUL ):
+                until_next = [ ((128,128,128), 12, "Peaceful mode") ]
+            else:
+                until_next = [ ((128,128,128), 12, "(%d days until next season)" %
+                            (( g.season_ends - self.cur_time ) + 1 )) ]
 
-        self.ui.Draw_Stats(self.stats_surf, typing.cast(List[StatTuple], [
-              ((128,0,128), 18, "Day %u" % g.game_time.Get_Day()),
-              ((128,128,0), 18, g.season_fx.name + " season") ]) +
-              until_next +
-                g.season_fx.Get_Extra_Info())
-        self.ui.Draw_Controls(self.controls_surf)
+            self.ui.Draw_Stats(self.stats_surf, typing.cast(List[StatTuple], [
+                  ((128,0,128), 18, "Day %u" % g.game_time.Get_Day()),
+                  ((128,128,0), 18, g.season_fx.name + " season") ]) +
+                  until_next +
+                    g.season_fx.Get_Extra_Info())
+            self.ui.Draw_Controls(self.controls_surf)
 
         stats_back = (0,0,0)
         supply = g.net.hub.Get_Steam_Supply()
@@ -342,8 +343,9 @@ class Game:
 
         avw = g.net.hub.Get_Avail_Work_Units()
         wu_unused = avw - g.work_units_used
-        self.global_stats_surf.fill(stats_back)
-        stats.Draw_Stats_Window(self.global_stats_surf, [
+        if draw:
+            self.global_stats_surf.fill(stats_back)
+            stats.Draw_Stats_Window(self.global_stats_surf, [
               (CITY_COLOUR, 18, "Work Units Available"),
               (None, None, (wu_unused, (255,0,255),
                           avw, (0,0,0))),
@@ -355,15 +357,15 @@ class Game:
               (CITY_COLOUR, 18, "City - Steam Pressure"),
               (None, None, g.net.hub.Get_Pressure_Meter())])
 
-        tutor.Draw(self.screen, g)
+            tutor.Draw(self.screen, g)
 
-        if self.menu_open:
-            self.current_menu.Draw(self.screen)
-            self.alarm_sound.Set(0.0)
+            if self.menu_open:
+                self.current_menu.Draw(self.screen)
+                self.alarm_sound.Set(0.0)
 
-        mail.Draw_Mail(self.game_screen_surf)
-        pygame.display.flip()
-        mail.Undraw_Mail(self.game_screen_surf)
+            mail.Draw_Mail(self.game_screen_surf)
+            pygame.display.flip()
+            mail.Undraw_Mail(self.game_screen_surf)
 
         if not self.paused:
             g.season_fx.Per_Frame(RT_FRAME_LENGTH)
@@ -527,7 +529,7 @@ class Game:
                     self.clock.tick(FRAME_RATE)
 
                 # Frame advance
-                self.Game_Tick()
+                self.Game_Tick(True)
 
                 # First event
                 await asyncio.sleep(0)  # <- yields for other async tasks
@@ -555,8 +557,9 @@ class Game:
                 if show_frame_rate:
                     pygame.draw.rect(self.screen, (255,255,255), pygame.Rect(0, 20, wasm_frames * RT_FRAME_LENGTH_MS, 10))
 
-                for i in range(wasm_frames):
-                    self.Game_Tick()
+                # Skip some frames and draw the last one
+                for i in range(wasm_frames, 0, -1):
+                    self.Game_Tick(i == 1)
 
                 # First event
                 await asyncio.sleep(0)  # <- waits for the next frame
