@@ -462,8 +462,8 @@ class Game:
 
         # menu setup
         self.exit_options = [
-            (MenuCommand.MENU, "Exit to Main Menu", [ pygame.K_q ]),
-            (MenuCommand.QUIT, "Exit Game", [ pygame.K_F10 ])]
+            (MenuCommand.MENU, "Exit to Main Menu", [ pygame.K_q ])] + [
+            (MenuCommand.QUIT, "Exit Game", [ pygame.K_F10 ]) ] if config.Is_Desktop() else []
 
         save_available: List[MenuItem] = [
             (MenuCommand.SAVE, "Save Game", [pygame.K_s]),
