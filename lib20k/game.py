@@ -635,7 +635,6 @@ class Game:
                             New_Mail("GAME END CHEAT (WIN)")
                             g.net.hub.tech_level = DIFFICULTY.CITY_MAX_TECH_LEVEL
 
-                await asyncio.sleep(0)
                 e = self.event.poll()
 
             # Any commands from the menu?
