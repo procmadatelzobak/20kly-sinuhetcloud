@@ -4,5 +4,7 @@
 #
 
 import pygame
+import platform
 from lib20k.main import Pygbag_Main
-await Pygbag_Main()
+platform.document.body.style.background = "#000000"
+await Pygbag_Main(platform.window)

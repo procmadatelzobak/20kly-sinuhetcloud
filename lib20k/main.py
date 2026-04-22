@@ -395,7 +395,7 @@ def PyInstaller_Main() -> None: # NO-COV
     open(crash_file, "at").write(all_log)
     sys.exit(return_code)
 
-async def Pygbag_Main() -> None: # NO-COV
+async def Pygbag_Main(window: typing.Any) -> None: # NO-COV
     # main for pygbag
     print("pygame init")
     pygame.init()
@@ -407,7 +407,7 @@ async def Pygbag_Main() -> None: # NO-COV
 
     print("video init")
     clock = pygame.time.Clock()
-    screen = pygame.display.set_mode()
+    screen = pygame.display.set_mode((window.innerWidth, window.innerHeight), pygame.RESIZABLE)
     compatibility.last_resize = screen.get_rect().size
     pygame.display.set_icon(resource.Load_Image(Images.i32))
     compatibility.set_allow_screensaver(True)
