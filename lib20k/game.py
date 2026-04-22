@@ -511,7 +511,6 @@ class Game:
         is_desktop = config.Is_Desktop()
         self.cur_time = g.game_time.time()
         wasm_time_taken = 0
-        show_frame_rate = True
 
         # Main loop
         while ( loop_running ):
@@ -538,30 +537,17 @@ class Game:
                 else:
                     e = self.event.poll()
             else:
-                # Frame rate delay
+                # Frame advance based on the amount of time passed since the last update
                 self.clock.tick(0)
-
-                if show_frame_rate:
-                    pygame.draw.rect(self.screen, (0,0,0), pygame.Rect(0, 0, self.screen.get_rect().width, 50))
-
                 wasm_time_taken += self.clock.get_time() * (10 if self.ui.Is_Fast_Forward() else 1)
-                if show_frame_rate:
-                    pygame.draw.rect(self.screen, (255,0,0), pygame.Rect(0, 0, wasm_time_taken, 10))
-
                 (wasm_frames, wasm_time_taken) = divmod(wasm_time_taken, RT_FRAME_LENGTH_MS)
-                if show_frame_rate:
-                    pygame.draw.rect(self.screen, (255,0,255), pygame.Rect(0, 0, wasm_time_taken, 10))
-                    pygame.draw.rect(self.screen, (255,255,255), pygame.Rect(0, 10, wasm_frames * RT_FRAME_LENGTH_MS, 10))
-
                 wasm_frames = min(20, wasm_frames)
-                if show_frame_rate:
-                    pygame.draw.rect(self.screen, (255,255,255), pygame.Rect(0, 20, wasm_frames * RT_FRAME_LENGTH_MS, 10))
 
                 # Skip some frames and draw the last one
                 for i in range(wasm_frames, 0, -1):
                     self.Game_Tick(i == 1)
 
-                # First event
+                # Get events
                 await asyncio.sleep(0)  # <- waits for the next frame
                 e = self.event.poll()
 

@@ -269,13 +269,11 @@ async def Simple_Menu_Loop(screen: SurfaceType, current_menu: Menu,
         current_menu.Draw(screen, (x,y))
         pygame.display.flip()
 
+        await asyncio.sleep(0)
         if config.Is_Desktop():
             e = event.wait()
         else: # NO-COV
             e = event.poll()
-            while ( e.type == pygame.NOEVENT ):
-                await asyncio.sleep(0.04)
-                e = event.poll()
         while ( e.type != pygame.NOEVENT ):
             if e.type == pygame.QUIT:
                 quit = True
@@ -288,7 +286,6 @@ async def Simple_Menu_Loop(screen: SurfaceType, current_menu: Menu,
             elif e.type == pygame.VIDEORESIZE:
                 return (False, None)
 
-            await asyncio.sleep(0)
             e = event.poll()
 
         cmd = current_menu.Get_Command()

@@ -308,13 +308,13 @@ async def Update_Feature(menu_image: SurfaceType, event: events.Events) -> bool:
         ok = True
         timer = 4000
         while (( ok ) and ( timer > 0 )):
+            await asyncio.sleep(0)
             e = event.poll()
             while ( e.type != pygame.NOEVENT ):
                 if (( e.type == pygame.MOUSEBUTTONDOWN )
                 or ( e.type == pygame.KEYDOWN )
                 or ( e.type == pygame.QUIT )):
                     ok = False
-                await asyncio.sleep(0)
                 e = event.poll()
 
             if ok: # NO-COV
@@ -450,5 +450,7 @@ async def Pygbag_Main() -> None: # NO-COV
 
     while True:
         pygame.display.flip()
-        await asyncio.sleep(0.04)
-        pygame.event.poll()
+        await asyncio.sleep(0)
+        e = pygame.event.poll()
+        while ( e.type != pygame.NOEVENT ):
+            e = pygame.event.poll()
