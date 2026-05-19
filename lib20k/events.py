@@ -4,7 +4,7 @@
 #
 
 from __future__ import annotations
-import pygame, webbrowser, urllib.request
+import pygame, webbrowser, urllib.request, asyncio
 
 # pygame.NOEVENT = 0 always; not accessible before pygame.init() in WASM
 _NOEVENT = 0
@@ -61,6 +61,14 @@ class Events:
 
     def wait(self) -> Event:                            # NO-COV
         return Event(pygame.event.wait(), self)
+
+    async def async_wait(self) -> Event:
+        """Non-blocking wait: poll + yield to asyncio until an event arrives."""
+        while True:
+            e = self.poll()
+            if e.type != _NOEVENT:
+                return e
+            await asyncio.sleep(0)
 
     def webbrowser_open(self, url: str) -> None:        # NO-COV
         pygame.display.iconify()

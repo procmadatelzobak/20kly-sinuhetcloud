@@ -236,7 +236,7 @@ async def Main_Menu_Loop(name: str, clock: ClockType,
                 quit = True
 
             elif ( cmd == MenuCommand.UPDATES ):
-                if Update_Feature(menu_image, event):
+                if await Update_Feature(menu_image, event):
                     url = ( CGISCRIPT + "v=" + version.Encode(VERSION) )
 
                     event.webbrowser_open(url)
@@ -283,7 +283,15 @@ async def Main_Menu_Loop(name: str, clock: ClockType,
 
     return True
 
-def Update_Feature(menu_image: SurfaceType, event: events.Events) -> bool:
+async def Update_Feature(menu_image: SurfaceType, event: events.Events) -> bool:
+    # urllib.request (synchronous HTTP) does not work in WASM/browser.
+    # Show a notice and return False immediately.
+    try:
+        import sys
+        if sys.platform == "emscripten":
+            return False
+    except Exception:
+        pass
     screen = event.resurface()
 
     def Message(msg_list: List[str]) -> None:
@@ -301,7 +309,7 @@ def Update_Feature(menu_image: SurfaceType, event: events.Events) -> bool:
             y += img_r.height
         pygame.display.flip()
 
-    def Finish(cerror: Optional[str] = None) -> None:
+    async def Finish(cerror: Optional[str] = None) -> None:
         if ( cerror is not None ):
             Message(["Connection error:", cerror])
 
@@ -317,7 +325,7 @@ def Update_Feature(menu_image: SurfaceType, event: events.Events) -> bool:
                 e = event.poll()
 
             if ok: # NO-COV
-                pygame.time.wait( 40 )
+                await asyncio.sleep(0.04)
                 timer -= 40
 
     Message(["Connecting to Website..."])
@@ -326,7 +334,7 @@ def Update_Feature(menu_image: SurfaceType, event: events.Events) -> bool:
     try:
         new_version = event.check_update(url)
     except Exception as x:
-        Finish(str(x))
+        await Finish(str(x))
         return False
 
     if (( new_version is None )
@@ -335,7 +343,7 @@ def Update_Feature(menu_image: SurfaceType, event: events.Events) -> bool:
     or ( len(new_version) > 10 )
     or ( not new_version[ 0 ].isdigit() )
     or ( new_version.find('.') <= 0 )):
-        Finish("Version data not found.")
+        await Finish("Version data not found.")
         return False
 
 
@@ -347,17 +355,17 @@ def Update_Feature(menu_image: SurfaceType, event: events.Events) -> bool:
     if new_version_int == old_version_int:
         Message(["Your software is up to date!",
             "Thankyou for using the update feature."])
-        Finish(None)
+        await Finish(None)
         return False
     elif new_version_int > old_version_int:
         Message(["New version " + new_version + " is available!",
                 "Opening website..."])
-        Finish(None)
+        await Finish(None)
         return True
     else:
         Message(["Your software is very up to date (beta?)",
             "'New' version is " + new_version + ": your version is " + old_version])
-        Finish(None)
+        await Finish(None)
         return False
 
 def PyInstaller_Main() -> None: # NO-COV

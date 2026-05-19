@@ -312,11 +312,11 @@ class Game:
 
 
             if self.ui.Is_Fast_Forward():
-                self.clock.tick(FRAME_RATE * 10)
+                await asyncio.sleep(1.0 / (FRAME_RATE * 10))
             elif (self.playback_mode in (PlayMode.PLAYBACK, PlayMode.PLAYTHRU)):
-                self.clock.tick(0)
+                pass  # run as fast as possible, already yielded above
             else:
-                self.clock.tick(FRAME_RATE)
+                await asyncio.sleep(1.0 / FRAME_RATE)
 
             if not paused:
                 flash = not flash
@@ -514,7 +514,7 @@ class Game:
 
             # Events
             if paused:
-                e = self.event.wait()
+                e = await self.event.async_wait()
             else:
                 e = self.event.poll()
 

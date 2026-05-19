@@ -269,7 +269,7 @@ async def Simple_Menu_Loop(screen: SurfaceType, current_menu: Menu,
         current_menu.Draw(screen, (x,y))
         pygame.display.flip()
 
-        e = event.wait()
+        e = await event.async_wait()
         while ( e.type != pygame.NOEVENT ):
             if e.type == pygame.QUIT:
                 quit = True
