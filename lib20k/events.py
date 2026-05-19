@@ -104,8 +104,15 @@ class Events:
             (width, height) = screen.get_rect().size
 
             if (width < MINIMUM_WIDTH) or (height < MINIMUM_HEIGHT):
-                # Screen is still too small even after resizing
-                raise ScreenTooSmallError(width, height)
+                # In browser/WASM the OS may not honour the resize request.
+                # Clamp to minimum so the game still runs; the rendering may
+                # be cropped but will not crash.
+                import sys
+                if sys.platform == "emscripten":
+                    width = max(width, MINIMUM_WIDTH)
+                    height = max(height, MINIMUM_HEIGHT)
+                else:
+                    raise ScreenTooSmallError(width, height)
 
         new_size = (width, height)
         if new_size != self.old_size:

@@ -20,6 +20,16 @@ os.environ.setdefault("LIGHTYEARS_DIR", _HERE)
 
 
 async def main():
+    # In pygbag, gui_divider=2 splits screen 50/50 between terminal and canvas.
+    # Set to 1 so the game canvas gets the full window. Must be done before
+    # pygame display init so the canvas is sized correctly.
+    try:
+        import platform as _plat
+        _plat.window.config.gui_divider = 1
+        _plat.window.window_resize()
+    except Exception:
+        pass  # not in pygbag/WASM context
+
     # Must init pygame BEFORE importing lib20k — WASM pygame constants are
     # only available after init(), and lib20k modules use them at module level.
     import pygame
