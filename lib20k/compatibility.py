@@ -7,7 +7,11 @@ import pygame
 
 
 # Minimum supported pygame is 1.9
-PYGAME_TWO = (pygame.version.vernum[0] >= 2)
+# pygbag uses pygame-ce (pygame 2+) — version not available at WASM import time
+try:
+    PYGAME_TWO = (pygame.version.vernum[0] >= 2)
+except AttributeError:
+    PYGAME_TWO = True  # pygbag/pygame-ce is always pygame 2+
 
 # pygame < 2.0 doesn't provide an easy way to get the new window size after a resize
 last_resize = (0, 0)
