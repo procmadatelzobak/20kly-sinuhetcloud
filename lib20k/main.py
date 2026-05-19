@@ -4,6 +4,7 @@
 #
 
 
+from __future__ import annotations
 import pygame, sys, math, time, os, asyncio
 import getopt, traceback, tempfile
 

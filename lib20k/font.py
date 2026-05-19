@@ -4,6 +4,7 @@
 #
 
 
+from __future__ import annotations
 import pygame
 from . import resource
 from .game_types import *
