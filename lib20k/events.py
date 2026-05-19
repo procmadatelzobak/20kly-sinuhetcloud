@@ -5,6 +5,9 @@
 
 from __future__ import annotations
 import pygame, webbrowser, urllib.request
+
+# pygame.NOEVENT = 0 always; not accessible before pygame.init() in WASM
+_NOEVENT = 0
 from .game_types import *
 from .primitives import *
 from . import mail, config, compatibility
@@ -14,7 +17,7 @@ class Event:
     def __init__(self,
                  base: Optional[pygame.event.Event] = None,
                  parent: "Optional[Events]" = None,
-                 t: int = pygame.NOEVENT,
+                 t: int = _NOEVENT,
                  pos: SurfacePosition = (0, 0),
                  key: int = 0,
                  button: int = 0) -> None:
