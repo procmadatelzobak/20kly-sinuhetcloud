@@ -20,6 +20,12 @@ os.environ.setdefault("LIGHTYEARS_DIR", _HERE)
 
 
 async def main():
+    # Must init pygame BEFORE importing lib20k — WASM pygame constants are
+    # only available after init(), and lib20k modules use them at module level.
+    import pygame
+    pygame.init()
+    pygame.font.init()
+
     from lib20k import Main, Events
     await Main(data_dir=os.path.join(_HERE, "data"), args=[], event=Events())
 
