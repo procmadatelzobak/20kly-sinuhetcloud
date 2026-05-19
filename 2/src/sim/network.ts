@@ -327,6 +327,9 @@ export class Network {
 
   setDifficulty(diff: DifficultySettings): void {
     this.diff = diff;
+    for (const n of this.nodeList) {
+      if (n instanceof WellNode) n.setDiff(diff);
+    }
   }
 
   buildEquilibrium(): void {

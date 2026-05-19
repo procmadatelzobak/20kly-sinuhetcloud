@@ -128,7 +128,9 @@ export function loadGame(slot: number): { net: Network; sm: SeasonManager; diffi
         cn.cityUpgrade = nd.cityUpgrade ?? 0;
         node = cn;
       } else if (nd.type === 'WellNode') {
-        node = new WellNode(pos);
+        const wn = new WellNode(pos);
+        wn.setDiff(diff);
+        node = wn;
       } else {
         node = new Node(pos);
       }
