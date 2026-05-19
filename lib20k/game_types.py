@@ -9,7 +9,7 @@ import typing
 from typing import List, Dict, Tuple, Union, Optional
 from .primitives import MenuCommand
 
-SurfaceType = pygame.surface.Surface
+SurfaceType = pygame.Surface
 Colour = Tuple[int, int, int]
 Colour4 = Tuple[int, int, int, int]
 BarMeterStatTuple = Tuple[int, Colour, int, Colour]
@@ -18,7 +18,7 @@ SurfacePosition = Tuple[int, int]
 FloatSurfacePosition = Tuple[float, float]
 GridPosition = Tuple[int, int]
 FloatGridPosition = Tuple[float, float]
-RectType = pygame.rect.Rect
+RectType = pygame.Rect
 UpdateAreaMethod = typing.Callable[[RectType], None]
 MenuItem = Tuple[Optional[MenuCommand], Optional[str], List[int]]
 ClockType = typing.Any
