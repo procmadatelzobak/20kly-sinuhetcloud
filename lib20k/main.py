@@ -4,7 +4,7 @@
 #
 
 
-import pygame, sys, math, time, os
+import pygame, sys, math, time, os, asyncio
 import getopt, traceback, tempfile
 
 
@@ -15,7 +15,7 @@ from .game_types import *
 from .game_random import PlaybackEOF
 
 
-def Main(data_dir: str, args: List[str], event: events.Events) -> int:
+async def Main(data_dir: str, args: List[str], event: events.Events) -> int:
 
     print("")
     print(TITLE)
@@ -119,7 +119,7 @@ Options:
         # record/playback
         try:
             return_code = 1 # Assume playback did not complete
-            game.Game(clock=clock,
+            await game.Game(clock=clock,
                     restore_pos=None,
                     challenge=record_challenge, event=event,
                     playback_mode=playback_mode,
@@ -132,7 +132,8 @@ Options:
         quit = True
 
     while ( not quit ):
-        quit = Main_Menu_Loop(TITLE, clock, event)
+        quit = await Main_Menu_Loop(TITLE, clock, event)
+        await asyncio.sleep(0)
 
     config.Save()
 
@@ -147,7 +148,7 @@ Options:
     return return_code
 
 
-def Main_Menu_Loop(name: str, clock: ClockType,
+async def Main_Menu_Loop(name: str, clock: ClockType,
                    event: events.Events) -> bool:
 
     current_menu: menu.Menu
@@ -184,6 +185,7 @@ def Main_Menu_Loop(name: str, clock: ClockType,
 
     quit = False
     while ( not quit ):
+        await asyncio.sleep(0)
         # Main menu
         screen = event.resurface()
         (width, height) = screen.get_rect().size
@@ -211,7 +213,7 @@ def Main_Menu_Loop(name: str, clock: ClockType,
             screen.blit(img, img_r.topleft)
             y += img_r.height
 
-        (quit, cmd) = menu.Simple_Menu_Loop(screen, current_menu,
+        (quit, cmd) = await menu.Simple_Menu_Loop(screen, current_menu,
                 (( width * 3 ) // 4, 10 + ( height // 2 )), event)
 
         if ( current_menu == main_menu ):
@@ -219,7 +221,7 @@ def Main_Menu_Loop(name: str, clock: ClockType,
                 current_menu = difficulty_menu
 
             elif ( cmd == MenuCommand.TUTORIAL ):
-                quit = game.Game(clock=clock,
+                quit = await game.Game(clock=clock,
                         restore_pos=None,
                         challenge=MenuCommand.TUTORIAL, event=event,
                         playback_mode=PlayMode.OFF,
@@ -259,7 +261,7 @@ def Main_Menu_Loop(name: str, clock: ClockType,
 
             if (( cmd != None ) and ( cmd != MenuCommand.CANCEL )):
                 # start new game with specified difficulty
-                quit = game.Game(clock=clock,
+                quit = await game.Game(clock=clock,
                         restore_pos=None,
                         challenge=cmd, event=event,
                         playback_mode=PlayMode.OFF,
@@ -272,7 +274,7 @@ def Main_Menu_Loop(name: str, clock: ClockType,
 
             if (( cmd != None ) and ( cmd != MenuCommand.CANCEL )):
                 # Start game from saved position
-                quit = game.Game(clock=clock,
+                quit = await game.Game(clock=clock,
                         restore_pos=cmd, challenge=None, event=event,
                         playback_mode=PlayMode.OFF,
                         playback_file=None,

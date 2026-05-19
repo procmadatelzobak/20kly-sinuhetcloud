@@ -6,7 +6,7 @@
 # Game statistics review.. no RTS game would be complete without one!
 #
 
-import pygame, sys, math, time, pickle
+import pygame, sys, math, time, pickle, asyncio
 
 
 from . import draw_effects, resource, font, menu, game, events
@@ -31,7 +31,7 @@ def Analyse_Network(game_object: "game.Game_Data") -> Historical_Record:
     return Historical_Record(game_object)
 
 # Called at the end of the game, to display statistics:
-def Review(game_object: "game.Game_Data",
+async def Review(game_object: "game.Game_Data",
         historian: List[Historical_Record],
         event: events.Events) -> None:
 
@@ -210,10 +210,11 @@ def Review(game_object: "game.Game_Data",
 
     quit = False
     while ( not quit ):
+        await asyncio.sleep(0)
         screen = Regraph(available_graphs[ graph_num ])
         (width, height) = screen.get_rect().size
 
-        (quit, cmd) = menu.Simple_Menu_Loop(screen,
+        (quit, cmd) = await menu.Simple_Menu_Loop(screen,
                     proceed, (( width * 3 ) // 4, height // 2 ), event)
 
         if ( cmd == MenuCommand.MENU ):
