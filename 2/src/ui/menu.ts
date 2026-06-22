@@ -175,7 +175,11 @@ export class MenuScreen {
     // Title
     const titleFs = Math.round(cw / 20);
     r.textCentered('20,000 Light-Years Into Space', cw / 2, ch * 0.1, titleFs, [255, 220, 100]);
-    r.textCentered('Original: © Jack Whitham 2006-26 (GPL2) — TypeScript port', cw / 2, ch * 0.1 + titleFs + 6, Math.round(titleFs * 0.5), [160, 160, 120]);
+    r.textCentered('Original game © Jack Whitham 2006-26 (GPL2) · www.jwhitham.org', cw / 2, ch * 0.1 + titleFs + 6, Math.round(titleFs * 0.5), [160, 160, 120]);
+    // Footer: make clear this hosted version is an unofficial port, not the original.
+    if (this.mode === 'main') {
+      r.textCentered('Unofficial web port by Vojtěch Pszczólka · 20kly.sinuhetcloud.net', cw / 2, ch * 0.95, Math.round(titleFs * 0.42), [150, 150, 120]);
+    }
 
     // Section title for savemenu
     if (this.mode === 'savemenu') {

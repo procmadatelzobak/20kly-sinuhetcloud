@@ -179,7 +179,8 @@ async def Main_Menu_Loop(name: str, clock: ClockType,
     current_menu = main_menu
 
     copyright = [ name,
-            COPYRIGHT + " - website: www.jwhitham.org",
+            "Original game: " + COPYRIGHT + " (GPL2) - www.jwhitham.org",
+            "Unofficial web port by Vojtěch Pszczólka - 20kly.sinuhetcloud.net",
             "Game version " + version.Encode(VERSION) ]
 
     # off we go.
